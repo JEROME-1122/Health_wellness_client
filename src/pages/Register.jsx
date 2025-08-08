@@ -12,7 +12,7 @@ export default function Register() {
     try {
       await axios.post('https://health-wellness-server.onrender.com/api/auth/register', form);
       alert('Registered Successfully');
-      navigate('/');
+      navigate('/login');
     } catch (err) {
       alert('Registration Failed',err);
     }
@@ -33,4 +33,5 @@ export default function Register() {
     </div>
   );
 }
+
 
