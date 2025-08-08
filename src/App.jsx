@@ -10,6 +10,7 @@ import Footer from "./components/Footer.jsx";
 import Fitness from "./pages/Fitness.jsx";
 import Nutrition from "./pages/Nutrition.jsx";
 import Goals from "./pages/Goals.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/fitness" element={<Fitness />} />
           <Route path="/nutrition" element={<Nutrition />} />
           <Route path="/goals" element={<Goals />} />
+           <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
         <Footer />
       </AuthProvider>
