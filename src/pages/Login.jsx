@@ -45,6 +45,9 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full p-2 mb-4 border rounded"
         />
+            <Link to="/reset-password" className="text-blue-500 hover:underline  ">
+          <p className="mb-4">forgot Passowrd</p>
+        </Link>
         <button
           type="submit"
           className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
@@ -63,3 +66,4 @@ const Login = () => {
 };
 
 export default Login;
+
