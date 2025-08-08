@@ -14,7 +14,7 @@ export default function Register() {
       alert('Registered Successfully');
       navigate('/');
     } catch (err) {
-      alert('Registration Failed');
+      alert('Registration Failed',err);
     }
   };
 
@@ -33,3 +33,4 @@ export default function Register() {
     </div>
   );
 }
+
