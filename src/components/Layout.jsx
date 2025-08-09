@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react'; // For hamburger icons
+import { Menu, X } from 'lucide-react';  
 import axiosInstance from '../api/axiosInstance';
 
 const Layout = ({ children }) => {
@@ -38,7 +38,7 @@ const Layout = ({ children }) => {
           </div>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex space-x-6 text-gray-700 font-medium">
+          <nav className="hidden lg:flex space-x-6 text-gray-700 font-medium">
             <Link to="/" className="hover:text-green-500">Home</Link>
             <Link to="/about" className="hover:text-green-500">About Us</Link>
             {profile ? (
@@ -78,7 +78,7 @@ const Layout = ({ children }) => {
 
             {/* Mobile Hamburger */}
             <button
-              className="md:hidden"
+              className="lg:hidden"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -88,7 +88,7 @@ const Layout = ({ children }) => {
 
         {/* Mobile Nav */}
         {menuOpen && (
-          <nav className="md:hidden bg-white border-t border-gray-200 px-4 pb-4 space-y-2 text-gray-700 font-medium">
+          <nav className="lg:hidden bg-white border-t border-gray-200 px-4 pb-4 space-y-2 text-gray-700 font-medium">
             <Link to="/" className="block hover:text-green-500" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link to="/about" className="block hover:text-green-500" onClick={() => setMenuOpen(false)}>About Us</Link>
             {profile ? (
