@@ -4,7 +4,7 @@ import axiosInstance from '../api/axiosInstance';
 const Goals = () => {
   const [goals, setGoals] = useState([]);
   const [formData, setFormData] = useState({
-    title: '',
+    title: 'Steps',
     totalSteps: '',
     stepsCompleted: '',
   });
@@ -85,6 +85,7 @@ const Goals = () => {
           type="text"
           placeholder="Goal Name"
           value={formData.title}
+          readOnly
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           className="w-full border px-4 py-2 rounded"
           required
@@ -167,3 +168,4 @@ const Goals = () => {
 };
 
 export default Goals;
+
