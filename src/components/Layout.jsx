@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';  
+import { Menu, X } from 'lucide-react'; // For hamburger icons
 import axiosInstance from '../api/axiosInstance';
 
 const Layout = ({ children }) => {
@@ -24,7 +24,7 @@ const Layout = ({ children }) => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setProfile(null);
-    navigate('/login');
+    navigate('/');
   };
 
   return (
@@ -112,4 +112,3 @@ const Layout = ({ children }) => {
 };
 
 export default Layout;
-

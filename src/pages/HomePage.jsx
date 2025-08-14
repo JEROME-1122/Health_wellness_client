@@ -24,8 +24,6 @@ const HomePage = () => {
 
   return (
     <div className="font-sans">
-      
-
       {/* Banner Slider */}
       <section className="pt-0">
         <Swiper
@@ -118,11 +116,16 @@ const HomePage = () => {
               and visualize your progress with an intuitive dashboard. Our
               platform makes your wellness journey streamlined and enjoyable.
             </p>
+
             <Link
-              to="/register"
-              className="inline-block px-8 py-3 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition"
+              to={user ? "/dashboard" : "/register"}
+              className={`inline-block px-8 py-3 rounded-full font-semibold transition ${
+                user
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "bg-green-500 text-white hover:bg-green-600"
+              }`}
             >
-              Join for Free
+              {user ? "Go to Dashboard" : "Join for Free"}
             </Link>
           </div>
         </div>
@@ -146,8 +149,6 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-
-
     </div>
   );
 };

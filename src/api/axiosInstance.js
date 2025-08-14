@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://health-wellness-server.onrender.com/api',
+  baseURL: 'https://health-wellness-server.onrender.com',
 });
 
 axiosInstance.interceptors.request.use((config) => {

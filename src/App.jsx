@@ -26,7 +26,7 @@ function App() {
           <Route path="/fitness" element={<Fitness />} />
           <Route path="/nutrition" element={<Nutrition />} />
           <Route path="/goals" element={<Goals />} />
-           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
         <Footer />
       </AuthProvider>

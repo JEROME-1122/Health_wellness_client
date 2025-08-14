@@ -1,68 +1,129 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from '../api/axiosInstance';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+// Dashboard.jsx
+import { useEffect, useState } from "react";
+import { Bar, Doughnut } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
+import axiosInstance from "../api/axiosInstance";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 const Dashboard = () => {
-  const [profile, setProfile] = useState({});
-  const [progress, setProgress] = useState({ steps: 0, calories: 0, workouts: 0 });
+  const [progress, setProgress] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProgress = async () => {
       try {
-        const profileRes = await axiosInstance.get('/profile');
-        const progressRes = await axiosInstance.get('/progress');
-        setProfile(profileRes.data);
-        setProgress(progressRes.data);
+        const res = await axiosInstance.get("/progress");
+        setProgress(res.data);
       } catch (err) {
         console.error(err);
       }
     };
-    fetchData();
+    fetchProgress();
   }, []);
 
-  const barData = {
-    labels: ['Steps Goal', 'Calories Burned', 'Workouts'],
+  if (!progress) return <p>Loading...</p>;
+
+  // Bar chart for calories
+  const calorieData = {
+    labels: ["Intake", "Burn", "Net"],
     datasets: [
       {
-        label: 'Progress Overview',
-        data: [progress.steps, progress.calories, progress.workouts],
-        backgroundColor: ['#34D399', '#60A5FA', '#FBBF24'],
+        label: "Calories",
+        data: [
+          progress.calories.intake,
+          progress.calories.burn,
+          progress.calories.net,
+        ],
+        backgroundColor: ["#4caf50", "#f44336", "#2196f3"],
       },
     ],
   };
 
-  const barOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: 'Weekly Progress' },
-    },
+  // Doughnut chart for nutrition macros
+  const nutritionData = {
+    labels: ["Protein", "Carbs", "Fat"],
+    datasets: [
+      {
+        data: [
+          progress.nutritionGoal.protein,
+          progress.nutritionGoal.carbs,
+          progress.nutritionGoal.fat,
+        ],
+        backgroundColor: ["#ff6384", "#36a2eb", "#ffcd56"],
+      },
+    ],
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">Welcome, {profile.name || 'User'} 👋</h1>
+    <div className="p-6 max-w-full px-10 mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-green-100 p-6 rounded-lg text-center">
-          <h2 className="text-xl font-semibold">Workouts</h2>
-          <p className="text-3xl font-bold">{progress.workouts}</p>
-        </div>
-        <div className="bg-blue-100 p-6 rounded-lg text-center">
-          <h2 className="text-xl font-semibold">Calories Burned</h2>
-          <p className="text-3xl font-bold">{progress.calories} kcal</p>
-        </div>
-        <div className="bg-yellow-100 p-6 rounded-lg text-center">
-          <h2 className="text-xl font-semibold">Steps Goal</h2>
-          <p className="text-3xl font-bold">{progress.steps}</p>
-        </div>
+      {/* Calories */}
+      <div className="mb-8 bg-white shadow rounded p-4">
+        <h2 className="text-xl font-semibold mb-4">Calories</h2>
+        <Bar
+          data={calorieData}
+          options={{
+            responsive: true,
+            plugins: { legend: { display: false } },
+          }}
+        />
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <Bar data={barData} options={barOptions} />
+      {/* Goals */}
+      <div className="grid grid-cols-1 md:grid-cols-2 align-center justify-center">
+        <div className="">
+          <div className="bg-white shadow rounded p-4 mb-5">
+            <h3 className="font-semibold mb-2">Steps Goal</h3>
+            <p>
+              {progress.stepsGoal?.progress || 0} /{" "}
+              {progress.stepsGoal?.target || 0}
+            </p>
+          </div>
+          <div className="bg-white shadow rounded p-4 mb-5">
+            <h3 className="font-semibold mb-2">Workout Goal</h3>
+            <p>
+              {progress.workoutGoal?.progress || 0} /{" "}
+              {progress.workoutGoal?.target || 0}
+            </p>
+          </div>
+          <div className="bg-white shadow rounded p-4 mb-5">
+            <h3 className="font-semibold mb-2">Nutrition Goal (calories)</h3>
+            <p>
+              {progress.nutritionGoal?.progress || 0} /{" "}
+              {progress.nutritionGoal?.calories || 0}
+            </p>
+          </div>
+        </div>
+
+        {/* Nutrition Macros */}
+        <div className="bg-white shadow rounded p-4 lg:p-50">
+          <h2 className="text-xl font-semibold mb-4">Macros</h2>
+          <Doughnut
+            data={nutritionData}
+            options={{
+              responsive: true,
+              plugins: { legend: { position: "bottom" } },
+            }}
+          />
+        </div>
       </div>
     </div>
   );

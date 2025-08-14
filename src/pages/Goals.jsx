@@ -1,22 +1,24 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from '../api/axiosInstance';
+import { useState, useEffect } from "react";
+import axiosInstance from "../api/axiosInstance";
 
 const Goals = () => {
   const [goals, setGoals] = useState([]);
   const [formData, setFormData] = useState({
-    title: 'Steps',
-    totalSteps: '',
-    stepsCompleted: '',
+    type: "steps",
+    target: "",
+    recurrence: "none",
+    progress: "",
   });
-  const [editId, setEditId] = useState(null);
+  const [editGoalId, setEditGoalId] = useState(null);
+  const [showProgressInput, setShowProgressInput] = useState(false);
 
-  // Fetch Goals
+  // Fetch all goals
   const fetchGoals = async () => {
     try {
-      const response = await axiosInstance.get('/goals');
-      setGoals(response.data);
+      const res = await axiosInstance.get("/goals");
+      setGoals(res.data);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -24,148 +26,180 @@ const Goals = () => {
     fetchGoals();
   }, []);
 
-    const handleReset = () => {
-    setFormData({ title: '', totalSteps: '', stepsCompleted: '' });
-    setEditId(null);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-
-  // Handle Form Submit (Add or Update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editId) {
-        await axiosInstance.put(`/goals/${editId}`, formData);
-        setEditId(null);
+      if (editGoalId) {
+        await axiosInstance.put(`/goals/${editGoalId}`, {
+          ...formData,
+          progress: formData.progress,
+        });
+        setEditGoalId(null);
+        setShowProgressInput(false);
       } else {
-        await axiosInstance.post('/goals', formData);
+        await axiosInstance.post("/goals", formData);
       }
-      setFormData({ title: '', totalSteps: '', stepsCompleted: '' });
+      setFormData({
+        type: "steps",
+        target: "",
+        recurrence: "none",
+        progress: "",
+      });
       fetchGoals();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
-  // Handle Delete
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this goal?')) {
-      try {
-        await axiosInstance.delete(`/goals/${id}`);
-        fetchGoals();
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  };
-
-  // Handle Edit Click
   const handleEdit = (goal) => {
+    setEditGoalId(goal._id);
     setFormData({
-      title: goal.title,
-      totalSteps: goal.totalSteps,
-      stepsCompleted: goal.stepsCompleted,
+      type: goal.type,
+      target: goal.target,
+      recurrence: goal.recurrence || "none",
+      progress: goal.progress || 0,
     });
-    setEditId(goal._id);
+    setShowProgressInput(true); // show progress input only on edit
   };
 
-  // Calculate Progress Percentage
-  const calculateProgress = (current, target) => {
-    if (!target || target === 0) return 0;
-    return Math.min(Math.round((current / target) * 100), 100);
+  const handleDelete = async (id) => {
+    try {
+      await axiosInstance.delete(`/goals/${id}`);
+      fetchGoals();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const handleReset = () => {
+    setFormData({
+      type: "",
+      target: " ",
+      recurrence: "",
+      progress: "",
+    });
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Goal Tracking</h1>
+    <div className="p-6 w-full px-10 mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Your Goals</h2>
 
-      {/* Goal Form */}
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
-        <input
-          type="text"
-          placeholder="Goal Name"
-          value={formData.title}
-          readOnly
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          className="w-full border px-4 py-2 rounded"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Target Value"
-          value={formData.totalSteps}
-          onChange={(e) => setFormData({ ...formData, totalSteps: e.target.value })}
-          className="w-full border px-4 py-2 rounded"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Current Progress"
-          value={formData.stepsCompleted}
-          onChange={(e) => setFormData({ ...formData, stepsCompleted: e.target.value })}
-          className="w-full border px-4 py-2 rounded"
-          required
-        />
+      {/* Form Section */}
+      <form
+        onSubmit={handleSubmit}
+        className="mb-6  p-4 rounded shadow"
+      >
+        <div className="mb-2">
+          <label className="block font-medium">Goal Type:</label>
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="steps">Steps</option>
+            <option value="calories">Calories</option>
+            <option value="workout">Workout</option>
+            <option value="nutrition">Nutrition</option>
+          </select>
+        </div>
+
+        <div className="mb-2">
+          <label className="block font-medium">Target:</label>
+          <input
+            type="number"
+            name="target"
+            value={formData.target}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+            required
+          />
+        </div>
+
+        <div className="mb-2">
+          <label className="block font-medium">Recurrence:</label>
+          <select
+            name="recurrence"
+            value={formData.recurrence}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="none">One-time</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+
+        {/* Progress input: hidden initially */}
+        {showProgressInput && (
+          <div className="mb-2">
+            <label className="block font-medium">Progress:</label>
+            <input
+              type="number"
+              name="progress"
+              value={formData.progress}
+              onChange={handleChange}
+              className="border p-2 rounded w-full"
+            />
+          </div>
+        )}
+
         <button
           type="submit"
-          className="bg-green-500 text-white px-4 py-2 rounded"
+          className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
         >
-          {editId ? 'Update Goal' : 'Add Goal'}
+          {editGoalId ? "Update Goal" : "Add Goal"}
         </button>
         <button
-            type="button"
-            onClick={handleReset}
-            className="bg-gray-500 text-white px-4 py-2 rounded ml-5"
-          >
-            Reset
-          </button>
+          type="button"
+          onClick={handleReset}
+          className="bg-gray-500 text-white px-4 py-2 rounded ml-5"
+        >
+          Reset Form
+        </button>
       </form>
 
-      {/* Goal List */}
-      <h2 className="text-2xl font-semibold mb-4">Your Goals</h2>
-      <div className="space-y-4">
-        {goals.map((goal) => (
-          <div key={goal._id} className="border p-4 rounded">
-            <div className="flex justify-between items-center mb-2">
-              <div>
-                <p><strong>Goal:</strong> {goal.title}</p>
-                <p><strong>Target:</strong> {goal.totalSteps}</p>
-                <p><strong>Current:</strong> {goal.stepsCompleted}</p>
-              </div>
-              <div className="space-x-2">
-                <button
-                  onClick={() => handleEdit(goal)}
-                  className="bg-yellow-400 text-white px-3 py-1 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(goal._id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-4">
-              <div
-                className="bg-green-500 h-4 rounded-full"
-                style={{
-                  width: `${calculateProgress(goal.stepsCompleted, goal.totalSteps)}%`,
-                }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600 mt-1">
-              {calculateProgress(goal.stepsCompleted, goal.totalSteps)}% completed
-            </p>
-          </div>
-        ))}
+      {/* Goals List */}
+      <div>
+        {goals.length === 0 ? (
+          <p>No goals yet. Add one above!</p>
+        ) : (
+          <ul className="space-y-2">
+            {goals.map((goal) => (
+              <li
+                key={goal._id}
+                className="border p-3 rounded flex flex-wrap justify-between items-center"
+              >
+                <div>
+                  <strong>{goal.type.toUpperCase()}</strong> - Target:{" "}
+                  {goal.target}, Progress: {goal.progress || 0}, Recurrence:{" "}
+                  {goal.recurrence}
+                </div>
+                <div className="space-x-2 mt-3 md:mt-0 flex ">
+                  <button
+                    onClick={() => handleEdit(goal)}
+                    className="bg-yellow-400 px-2 py-1 rounded  w-auto"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(goal._id)}
+                    className="bg-red-500 text-white px-2 py-1 rounded w-auto"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
 };
 
 export default Goals;
-
